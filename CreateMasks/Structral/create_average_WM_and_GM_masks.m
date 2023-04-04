@@ -6,13 +6,14 @@
 %% definition of path containing all subjects' segmented T1 data
 % (the parent directory should contain a directory for each subject)
 % (each subject's directory should contain segmentation results from SPM in NIFTI format - files for grey-matter, white-matter and CSF)
-T1dir = 'D:\CC_DTI\rest\T1ImgNewSegment'; %%%% input the segmented path using DPARSF
+T1dir = 'F:\HCP\Analysis\Preproc\Rest1\T1ImgNewSegment'; %%%% input the segmented path using DPARSF
 subjects = dir(T1dir); subjects = subjects(3:end); 
-num_subjs = length(subjects);
+% num_subjs = length(subjects);
+num_subjs = 5;
 
 
 %% definition of a file name with functional data - so that all other masks will be resampled to this file's resolution
-func_img1_filename = 'D:\CC_DTI\rest\rest1\100307\w100307.nii';    % functional image for reslicing
+func_img1_filename = 'F:\HCP\Analysis\Preproc\Rest_Day1\100610\Day1_rest_data.nii';    % functional image for reslicing
 %%%%% input any one functional image with finishing all preprocessing steps
 
 
@@ -106,15 +107,23 @@ WMmask_full = WMmask_full./num_subjs;
 % and thrn remove them from the WM mask (and add them to the GM mask).
 
 % reading the Harvard-Oxford atlas and resampling it to the functional image's resolution
-HO_atlas_filename = 'C:\Users\joepan\Desktop\cc_code\corpus callosum segmentation\mask\HarvardOxford-sub-maxprob-thr25-2mm_YCG.nii'; %%% choose the HarvardOxford-sub-maxprob-thr25-2mm_YCG.nii from the mask file
+HO_atlas_filename = 'D:\research_toolbox\dpabi\DPABI_V4.3_200401\DPABI_V4.3_200401\Templates\HarvardOxford-sub-maxprob-thr25-2mm_YCG.nii'; %%% choose the HarvardOxford-sub-maxprob-thr25-2mm_YCG.nii from the mask file
 HO_atlas = reslice_data(HO_atlas_filename, [func_img1_filename], 0);
+
+Buckner_atlas_filename = 'D:\research_toolbox\dpabi\DPABI_V4.3_200401\DPABI_V4.3_200401\Templates\Buckner2011_7Networks_MNI152_FreeSurferConformed1mm_LooseMask.nii';
+Buckner_atlas = reslice_data(Buckner_atlas_filename, [func_img1_filename], 0);
 
 % find the voxels defined as subcortical structures
 indices_subcortical = [find(HO_atlas==2010);	find(HO_atlas==2049);	find(HO_atlas==3011);	find(HO_atlas==3050);	find(HO_atlas==4012);	find(HO_atlas==4051);	find(HO_atlas==5013);	find(HO_atlas==5052);	find(HO_atlas==8026);	find(HO_atlas==8058);];
+% find the voxels defined as cerebellum
+indices_cerebellum = [find(Buckner_atlas==1); find(Buckner_atlas==2); find(Buckner_atlas==3); find(Buckner_atlas==4); find(Buckner_atlas==5); find(Buckner_atlas==6); find(Buckner_atlas==7);];
 
-% Remove these voxels from the white-matter mask and add them to the grey-matter mask
+% Remove these voxels from the white-matter mask and the grey-matter mask
 WMmask_full(indices_subcortical)=0;
-GMmask_full(indices_subcortical)=1;
+GMmask_full(indices_subcortical)=0;
+
+WMmask_full(indices_cerebellum)=0;
+GMmask_full(indices_cerebellum)=0;
 
 
 %% Thresholding to find voxels defined as WM or GM in a big enough percent of the subjects
@@ -129,8 +138,8 @@ threshold_notnan = 0.8;     % 80% of voxels need to be not NaN for each voxel to
 
 % defining the directory with average functional data of all subjects,
 % arranged in separate directories for each subject
-func_dir = 'D:\CC_DTI\rest\rest1\';%%% input the path of all functional images with finishing all preprocessing steps
-mean_func_prefix = 'w';     % leave blank ('') for un-normalized images
+func_dir = 'F:\HCP\Analysis\Preproc\Rest_Day1\';%%% input the path of all functional images with finishing all preprocessing steps
+mean_func_prefix = 'Day1';     % leave blank ('') for un-normalized images
 
 % reading these files and counting how many subjects have data in each voxel
 num_subjs_notnan_WM = zeros(length(WM_voxels),1); 
@@ -166,8 +175,8 @@ GMmask = zeros(size(GMmask)); GMmask(GM_voxels) = 1;
 
 
 %% Saving the resulting masks
-save_mat_to_nifti([func_img1_filename], WMmask, 'D:\CC_DTI\rest\mask\WMmask_allsubjs_buckner.nii');
-save_mat_to_nifti([func_img1_filename], GMmask, 'D:\CC_DTI\rest\mask\GMmask_allsubjs_buckner.nii');
+save_mat_to_nifti([func_img1_filename], WMmask, 'F:\HCP\Mask\WMmask_allsubjs_rmHO_Buckner.nii');
+save_mat_to_nifti([func_img1_filename], GMmask, 'F:\HCP\Mask\GMmask_allsubjs_rmHO_Buckner.nii');
 %%%% set output path
 
 
