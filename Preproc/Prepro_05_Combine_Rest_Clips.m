@@ -18,8 +18,8 @@ for dayi = 1:Day
     for subi = 1:length(subfolder)
         tic
         disp(['Now running sub' num2str(subi) '......']);
-        [Data1, Header1] = y_Read(['/home/brain/HuPeng_Project/Analysis/Preproc/Movie' num2str(rest_num1) '/FunImgRCDFSW/' subfolder(subi).name '/wsGMWM_func_data.nii']);
-        [Data2, Header2] = y_Read(['/home/brain/HuPeng_Project/Analysis/Preproc/Movie' num2str(rest_num2) '/FunImgRCDFSW/' subfolder(subi).name '/wsGMWM_func_data.nii']);
+        [Data1, Header1] = y_Read(['/home/brain/HuPeng_Project/Analysis/Preproc/Rest' num2str(rest_num1) '/FunImgRCDFSW/' subfolder(subi).name '/wsGMWM_func_data.nii']);
+        [Data2, Header2] = y_Read(['/home/brain/HuPeng_Project/Analysis/Preproc/Rest' num2str(rest_num2) '/FunImgRCDFSW/' subfolder(subi).name '/wsGMWM_func_data.nii']);
 
         Day_image = [];
         Day_image = cat(4,Day_image,Data1);
